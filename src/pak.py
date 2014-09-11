@@ -24,6 +24,9 @@ def main():
 
 	files = []
 	for f in args.file:
+		if len(f) >= MAX_FILENAME:
+			print "Filename %s is too long" % f
+			exit(1)
 		entry = {}
 		entry['name'] = f
 		infile = open(f, 'rb')
