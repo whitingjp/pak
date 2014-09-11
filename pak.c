@@ -16,12 +16,6 @@ typedef struct
 	int size;
 } file_header;
 
-void _err(const char* str)
-{
-	printf("err: %s\n", str);
-	exit(1);
-}
-
 typedef struct
 {
 	FILE *fptr;
@@ -30,6 +24,7 @@ typedef struct
 } pak_file;
 pak_file pak_file_zero = {NULL, {0,0}, NULL};
 pak_file pak;
+void(*err_func)(const char* str) = NULL;
 
 typedef struct
 {
@@ -38,22 +33,23 @@ typedef struct
 	unsigned int offset;
 } pak_handle;
 
-void pak_init(const char* packname)
+void pak_init(const char* packname, void(*err)(const char* str))
 {
+	err_func = err;
 	pak = pak_file_zero;
 	pak.fptr = fopen(packname, "rb");
 	if(!pak.fptr)
-		_err("Could not open file");
+		err_func("Could not open file");
 	int readsize;
 	readsize = fread(&pak.meta, sizeof(pak_meta), 1, pak.fptr);
 	if(readsize != 1)
-		_err("Failed to read meta");
+		err_func("Failed to read meta");
 	if(pak.meta.magic != 0xd1ed)
-		_err("Magic number wrong");
+		err_func("Magic number wrong");
 	pak.headers = calloc(pak.meta.files, sizeof(file_header));
 	readsize = fread(pak.headers, sizeof(file_header), pak.meta.files, pak.fptr);
 	if(readsize != pak.meta.files)
-		_err("Failed to read headers");
+		err_func("Failed to read headers");
 
 }
 void pak_shutdown()
@@ -100,25 +96,4 @@ int pak_file_seek(void *handle, unsigned int pos)
 	pak_handle* h = (pak_handle*)handle;
 	h->offset = pos;
 	return 0;
-}
-
-void main(int argc, char** argv)
-{
-	if(argc < 3)
-		_err("Usage:\n  ./pak package file");
-
-	pak_init(argv[1]);
-
-	unsigned int filesize;
-	void* handle;
-	int ret = pak_file_open(argv[2], &filesize, &handle);
-	if(ret == -1)
-		_err("Could not find file in package");
-	char* buffer = malloc(filesize);
-	int bytes_read;
-	pak_file_read(handle, buffer, filesize, &bytes_read);
-	printf("%s", buffer);
-	free(buffer);
-	pak_file_close(handle);
-	pak_shutdown();
 }
