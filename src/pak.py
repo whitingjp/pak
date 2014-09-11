@@ -3,6 +3,8 @@
 import argparse
 import struct
 
+MAX_FILENAME = 64
+
 def main():
 	parser = argparse.ArgumentParser(description='Packages several binary files into a ultra simple archive format.')
 	parser.add_argument('outfile')
@@ -18,7 +20,7 @@ def main():
 		endianness = '<'
 
 	meta_fmt = endianness + 'ii'
-	file_header_fmt = endianness + "64sii"
+	file_header_fmt = endianness + "%isii" % MAX_FILENAME
 
 	files = []
 	for f in args.file:

@@ -1,6 +1,8 @@
 #ifndef __PAK__
 #define __PAK__
 
+#define MAX_FILENAME (64)
+
 void pak_init(const char* packname, void(*err)(const char* str));
 void pak_shutdown();
 int pak_file_open(const char *name, unsigned int *filesize, void **handle);

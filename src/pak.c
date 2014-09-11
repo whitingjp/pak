@@ -1,3 +1,5 @@
+#include "pak.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +13,7 @@ typedef struct
 
 typedef struct
 {
-	char name[64];
+	char name[MAX_FILENAME];
 	int offset;
 	int size;
 } file_header;
@@ -64,7 +66,7 @@ int pak_file_open(const char *name, unsigned int *filesize, void **handle)
 	int i;
 	for(i=0; i<pak.meta.files; i++)
 	{
-		if(strncmp(name, pak.headers[i].name, sizeof(pak.headers[i].name)) != 0)
+		if(strncmp(name, pak.headers[i].name, MAX_FILENAME) != 0)
 			continue;
 		*filesize = pak.headers[i].size;
 		pak_handle* h = malloc(sizeof(pak_handle));
