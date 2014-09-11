@@ -63,7 +63,7 @@ void pak_shutdown()
 	pak = pak_file_zero;
 }
 
-int pak_file_open(const char *name, int unicode, unsigned int *filesize, void **handle, void **userdata)
+int pak_file_open(const char *name, unsigned int *filesize, void **handle)
 {
 	int i;
 	for(i=0; i<pak.meta.files; i++)
@@ -80,11 +80,12 @@ int pak_file_open(const char *name, int unicode, unsigned int *filesize, void **
 	}
 	return -1;
 }
-int pak_file_close(void *handle, void *userdata)
+int pak_file_close(void *handle)
 {
 	free(handle);
+	return 0;
 }
-int pak_file_read(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread, void *userdata)
+int pak_file_read(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread)
 {
 	pak_handle* h = (pak_handle*)handle;
 	fseek(pak.fptr, h->start+h->offset, SEEK_SET);
@@ -92,11 +93,13 @@ int pak_file_read(void *handle, void *buffer, unsigned int sizebytes, unsigned i
 	if(h->size - h->offset < to_read)
 		to_read = h->size - h->offset;
 	*bytesread = fread(buffer, 1, to_read, pak.fptr);
+	return 0;
 }
-int pak_file_seek(void *handle, unsigned int pos, void *userdata)
+int pak_file_seek(void *handle, unsigned int pos)
 {
 	pak_handle* h = (pak_handle*)handle;
 	h->offset = pos;
+	return 0;
 }
 
 void main(int argc, char** argv)
@@ -108,13 +111,14 @@ void main(int argc, char** argv)
 
 	unsigned int filesize;
 	void* handle;
-	int ret = pak_file_open(argv[2], 0, &filesize, &handle, NULL);
+	int ret = pak_file_open(argv[2], &filesize, &handle);
 	if(ret == -1)
 		_err("Could not find file in package");
 	char* buffer = malloc(filesize);
 	int bytes_read;
-	pak_file_read(handle, buffer, filesize, &bytes_read, NULL);
+	pak_file_read(handle, buffer, filesize, &bytes_read);
 	printf("%s", buffer);
 	free(buffer);
+	pak_file_close(handle);
 	pak_shutdown();
 }
