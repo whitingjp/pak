@@ -41,7 +41,7 @@ typedef struct
 void pak_init()
 {
 	pak = pak_file_zero;
-	pak.fptr = fopen("blah.pak", "rb");
+	pak.fptr = fopen("audio.pak", "rb");
 	if(!pak.fptr)
 		_err("Could not open file");
 	int readsize;
@@ -105,7 +105,7 @@ void main()
 
 	unsigned int filesize;
 	void* handle;
-	pak_file_open("audio.pak", 0, &filesize, &handle, NULL);
+	pak_file_open("pak.py", 0, &filesize, &handle, NULL);
 	char* buffer = malloc(filesize);
 	int bytes_read;
 	pak_file_read(handle, buffer, filesize, &bytes_read, NULL);

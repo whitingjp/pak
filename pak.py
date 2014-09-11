@@ -21,8 +21,13 @@ def main():
 	file_header_fmt = endianness + "64sii"
 
 	files = []
-	files.append({'name':'1.txt', 'data':'woo, some binary data'})
-	files.append({'name':'2.txt', 'data':'different data'})
+	for f in args.file:
+		entry = {}
+		entry['name'] = f
+		infile = open(f, 'rb')
+		entry['data'] = infile.read()[:]
+		infile.close()
+		files.append(entry)
 
 	outfile = open(args.outfile, 'wb')
 	num_files = len(files)
