@@ -38,10 +38,10 @@ typedef struct
 	unsigned int offset;
 } pak_handle;
 
-void pak_init()
+void pak_init(const char* packname)
 {
 	pak = pak_file_zero;
-	pak.fptr = fopen("audio.pak", "rb");
+	pak.fptr = fopen(packname, "rb");
 	if(!pak.fptr)
 		_err("Could not open file");
 	int readsize;
@@ -99,13 +99,18 @@ int pak_file_seek(void *handle, unsigned int pos, void *userdata)
 	h->offset = pos;
 }
 
-void main()
+void main(int argc, char** argv)
 {
-	pak_init();
+	if(argc < 3)
+		_err("Usage:\n  ./pak package file");
+
+	pak_init(argv[1]);
 
 	unsigned int filesize;
 	void* handle;
-	pak_file_open("pak.py", 0, &filesize, &handle, NULL);
+	int ret = pak_file_open(argv[2], 0, &filesize, &handle, NULL);
+	if(ret == -1)
+		_err("Could not find file in package");
 	char* buffer = malloc(filesize);
 	int bytes_read;
 	pak_file_read(handle, buffer, filesize, &bytes_read, NULL);
